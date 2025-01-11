@@ -1,0 +1,3 @@
+return {
+  "tekumara/typos-lsp",
+}
