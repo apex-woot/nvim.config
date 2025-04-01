@@ -8,7 +8,7 @@ vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 
 -- Improve input responsiveness
 vim.opt.timeoutlen = 300 -- Short delay for mappings, but not too aggressive
-vim.opt.ttimeoutlen = 10 -- Fast key repeat responsiveness
+vim.opt.ttimeoutlen = 1 -- Fast key repeat responsiveness
 
 -- Reduce UI delays
 vim.opt.updatetime = 50 -- Faster cursor events, LSP responsiveness
@@ -49,3 +49,8 @@ vim.opt.ruler = false -- Hide the ruler
 vim.opt.fillchars = { eob = " " } -- Remove ~ at end of buffer
 vim.opt.laststatus = 0 -- Hide status bar when not needed
 vim.opt.mouse = "" -- Disable mouse support
+
+vim.diagnostic.config({
+  virtual_lines = { current_line = true }, -- Enable virtual lines
+  virtual_text = false, -- Disable virtual text to avoid overlap
+})
