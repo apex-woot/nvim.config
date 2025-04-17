@@ -99,3 +99,6 @@ ProjectModel
 ProjectService
 Nestjs
 runtime
+mongodb
+UGLIFY
+goroutines

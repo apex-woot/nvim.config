@@ -1,56 +1,71 @@
 -- Options are automatically loaded before lazy.nvim startup
--- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
--- Add any additional options here
+-- Default options from LazyVim: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
+
+-- LazyVim-specific settings
 vim.g.lazyvim_prettier_needs_config = true
-vim.g.lazyvim_blink_main = true
+vim.g.lazyvim_blink_main = true -- Assuming this is a custom flag; kept as-is
 
-vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
+-- Performance Optimizations
+vim.opt.synmaxcol = 300 -- Limit syntax highlighting for long lines
+vim.opt.timeoutlen = 200 -- Short mapping delay
+vim.opt.ttimeoutlen = 5 -- Fast key repeat
+vim.opt.updatetime = 10 -- Fast cursor/LSP updates (0.11-friendly)
+vim.opt.swapfile = false -- No swap files
+vim.opt.undofile = true -- Persistent undo
+vim.opt.undodir = vim.fn.expand("~/.nvim/undo") -- Ensure directory exists
+vim.opt.foldmethod = "indent" -- Fast folding
+vim.opt.foldlevelstart = 99 -- Start with all folds open
+vim.opt.redrawtime = 500 -- Faster redraw timeout (0.11 optimization)
 
--- Improve input responsiveness
-vim.opt.timeoutlen = 300 -- Short delay for mappings, but not too aggressive
-vim.opt.ttimeoutlen = 1 -- Fast key repeat responsiveness
+-- UI Feel Improvements
+vim.opt.guicursor = "n-v-c:block,i-ci-ve:ver25-blinkwait500-blinkoff250-blinkon250" -- Blinking cursor for Ghostty
+vim.opt.termguicolors = true -- 24-bit color
+vim.opt.number = true -- Line numbers
+vim.opt.relativenumber = true -- Relative numbers
+vim.opt.signcolumn = "yes" -- Stable sign column
+vim.opt.showcmd = false -- Hide typed commands
+vim.opt.ruler = false -- Hide ruler
+vim.opt.laststatus = 0 -- Minimal statusline (LazyVim might override)
+vim.opt.cmdheight = 0 -- Hidden command line (0.11 supports this)
+vim.opt.scrolloff = 8 -- Context around cursor
+vim.opt.sidescrolloff = 8 -- Horizontal context
+vim.opt.ttyfast = true -- Optimize for Ghostty
+vim.opt.fillchars = { eob = " ", vert = " ", diff = "╱" } -- Clean UI, 0.11 diff support
+vim.opt.smoothscroll = true -- Smooth scrolling (0.11 feature)
 
--- Reduce UI delays
-vim.opt.updatetime = 50 -- Faster cursor events, LSP responsiveness
-vim.opt.cmdheight = 0 -- Hide command line unless needed
-vim.opt.signcolumn = "yes" -- Avoid text shifting
-vim.opt.splitkeep = "cursor"
-
--- Essential options
+-- Editor Behavior (unchanged)
 vim.opt.spell = true
 vim.opt.spelllang = { "en_us" }
 vim.opt.fileencoding = "utf-8"
-vim.opt.pumheight = 10 -- Pop-up menu height
-vim.opt.smartcase = true -- Smart case search
-vim.opt.smartindent = true -- Enable smart indentation
-vim.opt.splitbelow = true -- Force horizontal splits below
-vim.opt.splitright = true -- Force vertical splits to the right
-vim.opt.swapfile = false -- Disable swap file for performance
-vim.opt.termguicolors = true -- Enable 24-bit color
-vim.opt.undofile = true -- Persistent undo
+vim.opt.pumheight = 10
+vim.opt.smartcase = true
+vim.opt.smartindent = true
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+vim.opt.splitkeep = "cursor"
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.softtabstop = 2
+vim.opt.tabstop = 2
+vim.opt.wrap = false
+vim.opt.breakindent = true
+vim.opt.numberwidth = 4
+vim.opt.cursorline = false
+vim.opt.path:append({ "**" })
+vim.opt.wildignore:append({ "*/node_modules/*" })
+vim.opt.mouse = "" -- Mouse disabled
 
--- Editor behavior
-vim.opt.expandtab = true -- Convert tabs to spaces
-vim.opt.shiftwidth = 2 -- Indentation width
-vim.opt.softtabstop = 2 -- Make tab key feel natural
-vim.opt.tabstop = 2 -- How many spaces a tab counts as
-vim.opt.wrap = false -- No line wrapping
-vim.opt.breakindent = true -- Indent wrapped lines
-vim.opt.number = true -- Enable line numbers
-vim.opt.relativenumber = true -- Relative line numbers
-vim.opt.numberwidth = 4 -- Keep number column width consistent
-vim.opt.cursorline = false -- Don't highlight the current line
-vim.opt.path:append({ "**" }) -- Search in subdirectories
-vim.opt.wildignore:append({ "*/node_modules/*" }) -- Ignore node_modules
-
--- UI improvements
-vim.opt.showcmd = false -- Don't show typed commands
-vim.opt.ruler = false -- Hide the ruler
-vim.opt.fillchars = { eob = " " } -- Remove ~ at end of buffer
-vim.opt.laststatus = 0 -- Hide status bar when not needed
-vim.opt.mouse = "" -- Disable mouse support
-
+-- Diagnostics (adjusted for 0.11)
 vim.diagnostic.config({
-  virtual_lines = { current_line = true }, -- Enable virtual lines
-  virtual_text = false, -- Disable virtual text to avoid overlap
+  virtual_lines = { current_line = true }, -- Fixed syntax
+  virtual_text = true, -- Keep virtual text
+  signs = { priority = 10 }, -- 0.11 sign priority
 })
+
+-- Neovim 0.11-specific tweaks
+vim.opt.shortmess:append("I") -- Disable intro message
+vim.opt.diffopt:append("linematch:60") -- Improved diff algorithm (0.11)
+
+-- vim.api.nvim_set_hl(0, "TelescopePreviewNormal", {
+--   bg = "#191724", -- Background
+-- })

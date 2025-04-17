@@ -1,68 +1,33 @@
 return {
-  "rose-pine/neovim",
-  source = "rose-pine/neovim",
-  as = "rose-pine",
-  config = function()
-    require("rose-pine").setup({
-      variant = "auto",
-      dark_variant = "main",
-      dim_inactive_windows = false,
-      extend_background_behind_borders = true,
+  -- Rose-Pine theme
+  {
+    "rose-pine/neovim",
+    source = "rose-pine/neovim",
+    as = "rose-pine",
+  },
+  -- WhichKey plugin
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("which-key").setup({
+        -- Your WhichKey configuration (can be left empty for defaults)
+        win = {
+          border = "rounded", -- Set rounded border
+          no_overlap = true, -- Prevent overlap with cursor
+          padding = { 0, 1 }, -- [top/bottom, right/left]
+          width = 40, -- Fixed width (adjust as needed)
+          height = { min = 2, max = 40 }, -- Constrain height
+          col = -1, -- Align to the right edge (-1 means rightmost column)
+          row = -1, -- Align to the bottom (-1 means bottommost row)
+          zindex = 1000, -- Ensure it stays on top
+        },
+      })
 
-      enable = {
-        terminal = true,
-        legacy_highlights = true,
-        migrations = true,
-      },
-
-      styles = {
-        bold = true,
-        italic = true,
-        transparency = false,
-      },
-
-      groups = {
-        border = "base", -- Make border the same color as background
-        panel = "base", -- Ensure panel matches background
-
-        link = "iris",
-        error = "love",
-        hint = "iris",
-        info = "foam",
-        note = "pine",
-        todo = "rose",
-        warn = "gold",
-
-        git_add = "foam",
-        git_change = "rose",
-        git_delete = "love",
-        git_dirty = "rose",
-        git_ignore = "muted",
-        git_merge = "iris",
-        git_rename = "pine",
-        git_stage = "iris",
-        git_text = "rose",
-        git_untracked = "subtle",
-
-        h1 = "iris",
-        h2 = "foam",
-        h3 = "rose",
-        h4 = "gold",
-        h5 = "pine",
-        h6 = "foam",
-      },
-
-      palette = {},
-
-      highlight_groups = {
-        VertSplit = { fg = "base", bg = "base" }, -- Hide vertical split
-        WinSeparator = { fg = "base", bg = "base" }, -- Hide window separators
-        MsgSeparator = { fg = "base", bg = "base" }, -- Hide command-line border when typing :
-        NormalFloat = { bg = "base" }, -- Set floating window background
-        FloatBorder = { fg = "base", bg = "base" }, -- Hide floating window border
-        DiagnosticInfo = { fg = "muted", bg = "base" }, -- Hide floating window border
-      },
-    })
-    vim.cmd("colorscheme rose-pine")
-  end,
+      -- Set custom highlights to match Rose-Pine main background
+      vim.api.nvim_set_hl(0, "WhichKeyNormal", { bg = "#191724" }) -- Background color
+      vim.api.nvim_set_hl(0, "WhichKeyBorder", { fg = "#403d52", bg = "#191724" }) -- Border (using Rose-Pine's 'muted')
+      vim.api.nvim_set_hl(0, "WhichKeyTitle", { fg = "#e0def4", bg = "#191724" }) -- Title (using Rose-Pine's 'text')
+    end,
+  },
 }

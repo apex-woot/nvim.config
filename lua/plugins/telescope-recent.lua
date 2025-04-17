@@ -1,213 +1,248 @@
--- ~/.config/nvim/lua/plugins/telescope-recent.lua
 return {
-  -- "nvim-telescope/telescope.nvim",
-  -- dependencies = { "nvim-lua/plenary.nvim" },
-  -- opts = function(_, opts)
-  --   local action_state = require("telescope.actions.state")
-  --   local pickers = require("telescope.pickers")
-  --   local finders = require("telescope.finders")
-  --   local conf = require("telescope.config").values
-  --
-  --   -- Use a hash set for O(1) lookups and a list for ordered display
-  --   local session_files_set = {}
-  --   local session_files = {}
-  --   local edited_files_cache = nil
-  --   local project_root = vim.loop.cwd() -- luacheck: ignore 113/vim
-  --
-  --   -- Function to add a file to session_files (defined outside the closure)
-  --   local function track_session_file()
-  --     local filepath = vim.api.nvim_buf_get_name(0)
-  --     local buf = vim.api.nvim_get_current_buf()
-  --     local buftype = vim.bo[buf].buftype
-  --     local filetype = vim.bo[buf].filetype
-  --     if filepath == "" or vim.fn.isdirectory(filepath) ~= 0 then
-  --       return -- Early exit for empty or directory buffers
-  --     end
-  --     if
-  --       buftype == ""
-  --       and filetype ~= "neo-tree"
-  --       and not filepath:match("neo%-tree filesystem")
-  --       and filepath:find(project_root, 1, true) == 1
-  --       and not session_files_set[filepath]
-  --     then
-  --       session_files_set[filepath] = true
-  --       table.insert(session_files, 1, filepath)
-  --       edited_files_cache = nil
-  --       -- print("Tracked: " .. filepath) -- Debug output
-  --     end
-  --   end
-  --
-  --   -- Track buffer switches
-  --   vim.api.nvim_create_autocmd({ "BufEnter" }, {
-  --     callback = track_session_file,
-  --     desc = "Track files opened in the current session",
-  --   })
-  --
-  --   -- Invalidate cache on file write
-  --   vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-  --     callback = function()
-  --       edited_files_cache = nil
-  --     end,
-  --     desc = "Invalidate edited files cache on write",
-  --   })
-  --
-  --   -- Helper function to get edited files with caching
-  --   local function get_edited_files()
-  --     if edited_files_cache then
-  --       return edited_files_cache
-  --     end
-  --     edited_files_cache = {}
-  --     for _, filepath in ipairs(session_files) do
-  --       local buf = vim.fn.bufnr(filepath)
-  --       if buf ~= -1 then
-  --         if vim.bo[buf].modified then
-  --           table.insert(edited_files_cache, filepath)
-  --         else
-  --           local stat = vim.loop.fs_stat(filepath) -- luacheck: ignore 113/vim
-  --           if stat and stat.mtime.sec > vim.g.session_start_time then
-  --             table.insert(edited_files_cache, filepath)
-  --           end
-  --         end
-  --       end
-  --     end
-  --     return edited_files_cache
-  --   end
-  --
-  --   -- Set session start time for mtime comparison
-  --   vim.g.session_start_time = vim.g.session_start_time or os.time()
-  --
-  --   -- Helper function to get filename relative to project root
-  --   local function get_relative_filename(filepath)
-  --     if filepath:find(project_root, 1, true) == 1 then
-  --       return filepath:sub(#project_root + 2)
-  --     end
-  --     return filepath
-  --   end
-  --
-  --   -- Helper function to get just the filename from a filepath
-  --   local function get_filename(filepath)
-  --     return filepath:match("^.*/(.+)$") or filepath
-  --   end
-  --
-  --   -- Custom picker for session files
-  --   local function recent_files_picker(picker_opts)
-  --     picker_opts = picker_opts or {}
-  --     local show_edited_only = vim.g.recent_files_show_edited_only or false
-  --
-  --     local function get_entries()
-  --       return show_edited_only and get_edited_files() or session_files
-  --     end
-  --
-  --     local picker = pickers.new(picker_opts, {
-  --       prompt_title = "Recent Files (Session)",
-  --       finder = finders.new_table({
-  --         results = get_entries(),
-  --         entry_maker = function(entry)
-  --           local is_edited = vim.tbl_contains(get_edited_files(), entry)
-  --           local relative_name = get_relative_filename(entry)
-  --           -- Truncate to filename if path is too long (e.g., > 50 chars)
-  --           local display_name = (#relative_name > 50) and get_filename(relative_name) or relative_name
-  --           return {
-  --             value = entry,
-  --             display = (is_edited and "[*] " or "") .. display_name,
-  --             ordinal = entry,
-  --           }
-  --         end,
-  --       }),
-  --       sorter = conf.generic_sorter(picker_opts),
-  --       layout_config = {
-  --         width = 0.8, -- Increased width (80% of screen)
-  --         height = 0.8, -- Increased height (80% of screen)
-  --         prompt_position = "top", -- Move prompt to top for better horizontal layout
-  --         preview_width = 0.5, -- Preview takes 50% of the window width
-  --         preview_cutoff = 0, -- Always show preview, even for small windows
-  --       },
-  --       layout_strategy = "horizontal", -- Preview on the right
-  --       display_stat = false,
-  --       initial_mode = "normal",
-  --       attach_mappings = function(prompt_bufnr, map)
-  --         local toggle_edited = function()
-  --           show_edited_only = not show_edited_only
-  --           vim.g.recent_files_show_edited_only = show_edited_only
-  --           local current_picker = action_state.get_current_picker(prompt_bufnr)
-  --           current_picker:refresh(
-  --             finders.new_table({
-  --               results = get_entries(),
-  --               entry_maker = function(entry)
-  --                 local is_edited = vim.tbl_contains(get_edited_files(), entry)
-  --                 local relative_name = get_relative_filename(entry)
-  --                 -- Truncate to filename if path is too long (e.g., > 50 chars)
-  --                 local display_name = (#relative_name > 50) and get_filename(relative_name) or relative_name
-  --                 return {
-  --                   value = entry,
-  --                   display = (is_edited and "[*] " or "") .. display_name,
-  --                   ordinal = entry,
-  --                 }
-  --               end,
-  --             }),
-  --             { reset_prompt = false }
-  --           )
-  --         end
-  --
-  --         local copy_relative_path = function()
-  --           local entry = action_state.get_selected_entry()
-  --           if entry and entry.value then
-  --             local relative_path = get_relative_filename(entry.value)
-  --             vim.fn.setreg("+", relative_path)
-  --             vim.notify("Copied relative path: " .. relative_path, vim.log.levels.INFO)
-  --           end
-  --         end
-  --
-  --         local copy_absolute_path = function()
-  --           local entry = action_state.get_selected_entry()
-  --           if entry and entry.value then
-  --             vim.fn.setreg("+", entry.value)
-  --             vim.notify("Copied absolute path: " .. entry.value, vim.log.levels.INFO)
-  --           end
-  --         end
-  --
-  --         map("n", "e", toggle_edited)
-  --         map("n", "c", copy_relative_path)
-  --         map("n", "<S-C>", copy_absolute_path)
-  --
-  --         return true
-  --       end,
-  --     })
-  --
-  --     picker:find()
-  --   end
-  --
-  --   -- Merge with existing opts
-  --   opts = vim.tbl_deep_extend("force", opts, {
-  --     defaults = {
-  --       mappings = {
-  --         i = opts.defaults and opts.defaults.mappings.i or {},
-  --         n = opts.defaults and opts.defaults.mappings.n or {},
-  --       },
-  --     },
-  --   })
-  --
-  --   return {
-  --     setup = function()
-  --       -- Track all currently loaded buffers immediately
-  --       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-  --         if vim.api.nvim_buf_is_loaded(buf) then
-  --           vim.api.nvim_buf_call(buf, track_session_file)
-  --         end
-  --       end
-  --
-  --       vim.keymap.set("n", "<leader>fr", function()
-  --         recent_files_picker()
-  --       end, { desc = "Recent Files (Session)" })
-  --       vim.api.nvim_create_user_command("PrintSessionFilesCount", function()
-  --         print("Number of session files: " .. #session_files)
-  --       end, { desc = "Print the number of tracked session files" })
-  --     end,
-  --     opts = opts,
-  --   }
-  -- end,
-  -- config = function(_, opts)
-  --   require("telescope").setup(opts)
-  --   opts.setup()
-  -- end,
+  "nvim-telescope/telescope.nvim",
+  dependencies = { "nvim-lua/plenary.nvim" },
+  config = function()
+    -- Optional: Ensure keymaps for grep
+    -- local function set_telescope_ui_bg()
+    --   -- Preview (file preview)
+    --   vim.api.nvim_set_hl(0, "TelescopePreviewNormal", {
+    --     bg = "#191724", -- Rosé Pine "main" background
+    --   })
+    --   vim.api.nvim_set_hl(0, "TelescopePreviewBorder", {
+    --     bg = "#191724", -- Match background to blend in
+    --   })
+    --
+    --   -- Results (recents list)
+    --   vim.api.nvim_set_hl(0, "TelescopeResultsNormal", {
+    --     bg = "#191724",
+    --   })
+    --   vim.api.nvim_set_hl(0, "TelescopeResultsBorder", {
+    --     bg = "#191724",
+    --   })
+    --
+    --   -- Prompt (input box)
+    --   vim.api.nvim_set_hl(0, "TelescopePromptNormal", {
+    --     bg = "#191724",
+    --   })
+    --   vim.api.nvim_set_hl(0, "TelescopePromptBorder", {
+    --     bg = "#191724",
+    --   })
+    -- end
+    --
+    -- -- Apply initially
+    -- set_telescope_ui_bg()
+  end,
 }
+-- ~/.config/nvim/lua/plugins/telescope-recent.lua
+-- return {
+--   -- "nvim-telescope/telescope.nvim",
+-- dependencies = { "nvim-lua/plenary.nvim" },
+-- opts = function(_, opts)
+--   local action_state = require("telescope.actions.state")
+--   local pickers = require("telescope.pickers")
+--   local finders = require("telescope.finders")
+--   local conf = require("telescope.config").values
+--
+--   -- Use a hash set for O(1) lookups and a list for ordered display
+--   local session_files_set = {}
+--   local session_files = {}
+--   local edited_files_cache = nil
+--   local project_root = vim.loop.cwd() -- luacheck: ignore 113/vim
+--
+--   -- Function to add a file to session_files (defined outside the closure)
+--   local function track_session_file()
+--     local filepath = vim.api.nvim_buf_get_name(0)
+--     local buf = vim.api.nvim_get_current_buf()
+--     local buftype = vim.bo[buf].buftype
+--     local filetype = vim.bo[buf].filetype
+--     if filepath == "" or vim.fn.isdirectory(filepath) ~= 0 then
+--       return -- Early exit for empty or directory buffers
+--     end
+--     if
+--       buftype == ""
+--       and filetype ~= "neo-tree"
+--       and not filepath:match("neo%-tree filesystem")
+--       and filepath:find(project_root, 1, true) == 1
+--       and not session_files_set[filepath]
+--     then
+--       session_files_set[filepath] = true
+--       table.insert(session_files, 1, filepath)
+--       edited_files_cache = nil
+--       -- print("Tracked: " .. filepath) -- Debug output
+--     end
+--   end
+--
+--   -- Track buffer switches
+--   vim.api.nvim_create_autocmd({ "BufEnter" }, {
+--     callback = track_session_file,
+--     desc = "Track files opened in the current session",
+--   })
+--
+--   -- Invalidate cache on file write
+--   vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+--     callback = function()
+--       edited_files_cache = nil
+--     end,
+--     desc = "Invalidate edited files cache on write",
+--   })
+--
+--   -- Helper function to get edited files with caching
+--   local function get_edited_files()
+--     if edited_files_cache then
+--       return edited_files_cache
+--     end
+--     edited_files_cache = {}
+--     for _, filepath in ipairs(session_files) do
+--       local buf = vim.fn.bufnr(filepath)
+--       if buf ~= -1 then
+--         if vim.bo[buf].modified then
+--           table.insert(edited_files_cache, filepath)
+--         else
+--           local stat = vim.loop.fs_stat(filepath) -- luacheck: ignore 113/vim
+--           if stat and stat.mtime.sec > vim.g.session_start_time then
+--             table.insert(edited_files_cache, filepath)
+--           end
+--         end
+--       end
+--     end
+--     return edited_files_cache
+--   end
+--
+--   -- Set session start time for mtime comparison
+--   vim.g.session_start_time = vim.g.session_start_time or os.time()
+--
+--   -- Helper function to get filename relative to project root
+--   local function get_relative_filename(filepath)
+--     if filepath:find(project_root, 1, true) == 1 then
+--       return filepath:sub(#project_root + 2)
+--     end
+--     return filepath
+--   end
+--
+--   -- Helper function to get just the filename from a filepath
+--   local function get_filename(filepath)
+--     return filepath:match("^.*/(.+)$") or filepath
+--   end
+--
+--   -- Custom picker for session files
+--   local function recent_files_picker(picker_opts)
+--     picker_opts = picker_opts or {}
+--     local show_edited_only = vim.g.recent_files_show_edited_only or false
+--
+--     local function get_entries()
+--       return show_edited_only and get_edited_files() or session_files
+--     end
+--
+--     local picker = pickers.new(picker_opts, {
+--       prompt_title = "Recent Files (Session)",
+--       finder = finders.new_table({
+--         results = get_entries(),
+--         entry_maker = function(entry)
+--           local is_edited = vim.tbl_contains(get_edited_files(), entry)
+--           local relative_name = get_relative_filename(entry)
+--           -- Truncate to filename if path is too long (e.g., > 50 chars)
+--           local display_name = (#relative_name > 50) and get_filename(relative_name) or relative_name
+--           return {
+--             value = entry,
+--             display = (is_edited and "[*] " or "") .. display_name,
+--             ordinal = entry,
+--           }
+--         end,
+--       }),
+--       sorter = conf.generic_sorter(picker_opts),
+--       layout_config = {
+--         width = 0.8, -- Increased width (80% of screen)
+--         height = 0.8, -- Increased height (80% of screen)
+--         prompt_position = "top", -- Move prompt to top for better horizontal layout
+--         preview_width = 0.5, -- Preview takes 50% of the window width
+--         preview_cutoff = 0, -- Always show preview, even for small windows
+--       },
+--       layout_strategy = "horizontal", -- Preview on the right
+--       display_stat = false,
+--       initial_mode = "normal",
+--       attach_mappings = function(prompt_bufnr, map)
+--         local toggle_edited = function()
+--           show_edited_only = not show_edited_only
+--           vim.g.recent_files_show_edited_only = show_edited_only
+--           local current_picker = action_state.get_current_picker(prompt_bufnr)
+--           current_picker:refresh(
+--             finders.new_table({
+--               results = get_entries(),
+--               entry_maker = function(entry)
+--                 local is_edited = vim.tbl_contains(get_edited_files(), entry)
+--                 local relative_name = get_relative_filename(entry)
+--                 -- Truncate to filename if path is too long (e.g., > 50 chars)
+--                 local display_name = (#relative_name > 50) and get_filename(relative_name) or relative_name
+--                 return {
+--                   value = entry,
+--                   display = (is_edited and "[*] " or "") .. display_name,
+--                   ordinal = entry,
+--                 }
+--               end,
+--             }),
+--             { reset_prompt = false }
+--           )
+--         end
+--
+--         local copy_relative_path = function()
+--           local entry = action_state.get_selected_entry()
+--           if entry and entry.value then
+--             local relative_path = get_relative_filename(entry.value)
+--             vim.fn.setreg("+", relative_path)
+--             vim.notify("Copied relative path: " .. relative_path, vim.log.levels.INFO)
+--           end
+--         end
+--
+--         local copy_absolute_path = function()
+--           local entry = action_state.get_selected_entry()
+--           if entry and entry.value then
+--             vim.fn.setreg("+", entry.value)
+--             vim.notify("Copied absolute path: " .. entry.value, vim.log.levels.INFO)
+--           end
+--         end
+--
+--         map("n", "e", toggle_edited)
+--         map("n", "c", copy_relative_path)
+--         map("n", "<S-C>", copy_absolute_path)
+--
+--         return true
+--       end,
+--     })
+--
+--     picker:find()
+--   end
+--
+--   -- Merge with existing opts
+--   opts = vim.tbl_deep_extend("force", opts, {
+--     defaults = {
+--       mappings = {
+--         i = opts.defaults and opts.defaults.mappings.i or {},
+--         n = opts.defaults and opts.defaults.mappings.n or {},
+--       },
+--     },
+--   })
+--
+--   return {
+--     setup = function()
+--       -- Track all currently loaded buffers immediately
+--       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+--         if vim.api.nvim_buf_is_loaded(buf) then
+--           vim.api.nvim_buf_call(buf, track_session_file)
+--         end
+--       end
+--
+--       vim.keymap.set("n", "<leader>fr", function()
+--         recent_files_picker()
+--       end, { desc = "Recent Files (Session)" })
+--       vim.api.nvim_create_user_command("PrintSessionFilesCount", function()
+--         print("Number of session files: " .. #session_files)
+--       end, { desc = "Print the number of tracked session files" })
+--     end,
+--     opts = opts,
+--   }
+-- end,
+-- config = function(_, opts)
+--   require("telescope").setup(opts)
+--   opts.setup()
+-- end,
+-- }
