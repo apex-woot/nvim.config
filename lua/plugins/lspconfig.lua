@@ -2,7 +2,11 @@ return {
   "neovim/nvim-lspconfig",
   opts = {
     servers = {
-      biome = {},
+      biome = {
+        root_dir = function(fname)
+          return require("lspconfig.util").root_pattern("biome.json", "biome.jsonc")(fname)
+        end,
+      },
       gopls = {
         settings = {
           gopls = {
@@ -12,6 +16,7 @@ return {
               parameterNames = true,
               assignVariableTypes = true,
             },
+            usePlaceholders = true,
           },
         },
       },
