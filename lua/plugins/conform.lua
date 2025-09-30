@@ -14,10 +14,5 @@ return {
         YAMLFIX_LINE_LENGTH = "120",
       },
     }
-
-    -- Ensure biome uses unsafe flag to remove unused imports
-    opts.formatters.biome = {
-      args = { "check", "--write", "--unsafe", "--stdin-file-path", "$FILENAME" },
-    }
   end,
 }

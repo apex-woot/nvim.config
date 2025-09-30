@@ -16,3 +16,13 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Disable folding range to prevent LSP error on buffer close
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client and client.server_capabilities.foldingRangeProvider then
+      client.server_capabilities.foldingRangeProvider = false
+    end
+  end,
+})
+
