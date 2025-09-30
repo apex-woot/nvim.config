@@ -2,9 +2,7 @@ return {
   {
     "saghen/blink.cmp",
     dependencies = {
-      {
-        "Kaiser-Yang/blink-cmp-git",
-      },
+      "Kaiser-Yang/blink-cmp-git",
     },
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
@@ -15,7 +13,7 @@ return {
       completion = {
         accept = {
           auto_brackets = {
-            enabled = false,
+            enabled = true,
           },
         },
         menu = {
@@ -37,7 +35,7 @@ return {
         },
       },
       sources = {
-        default = { "lsp", "path", "buffer", "git" },
+        default = { "lsp", "path", "snippets", "buffer", "git" },
         providers = {
           lsp = {
             name = "LSP",
