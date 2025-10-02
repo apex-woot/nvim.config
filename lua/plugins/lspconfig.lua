@@ -37,6 +37,7 @@ return {
         filetypes = { "*" },
         init_options = { codeActions = true },
       },
+      fish_lsp = {},
     },
   },
 }
